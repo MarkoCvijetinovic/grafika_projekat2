@@ -140,7 +140,6 @@ void MainController::draw_star() {
     model           = translate(model, m_starPos);
     model           = scale(model, glm::vec3(0.6f));
     shader->set_mat4("model", model);
-    shader->set_float("luminocity", m_starLuminocity);
 
     auto camera = graphics->camera();
     shader->set_vec3("viewPos", camera->Position);
@@ -241,5 +240,24 @@ void MainController::poll_events() {
     if (platform->key(engine::platform::KEY_F1).state() == engine::platform::Key::State::JustPressed) {
         cursor_enabled = !cursor_enabled;
         platform->set_enable_cursor(cursor_enabled);
+    }
+
+    if (platform->key(engine::platform::KeyId::KEY_J).is_down()) {
+        m_spotLightColor[0] += 0.02f;
+    }
+    if (platform->key(engine::platform::KeyId::KEY_K).is_down()) {
+        m_spotLightColor[1] += 0.02f;
+    }
+    if (platform->key(engine::platform::KeyId::KEY_L).is_down()) {
+        m_spotLightColor[2] += 0.02f;
+    }
+    if (platform->key(engine::platform::KeyId::KEY_I).is_down()) {
+        m_spotLightColor[0] = std::max(m_spotLightColor[0] - 0.02f, 0.0f);
+    }
+    if (platform->key(engine::platform::KeyId::KEY_O).is_down()) {
+        m_spotLightColor[1] = std::max(m_spotLightColor[1] - 0.02f, 0.0f);
+    }
+    if (platform->key(engine::platform::KeyId::KEY_P).is_down()) {
+        m_spotLightColor[2] = std::max(m_spotLightColor[2] - 0.02f, 0.0f);
     }
 }
