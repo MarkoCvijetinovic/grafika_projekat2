@@ -82,6 +82,9 @@ void MainController::configure_planet() {
 
     auto camera = graphics->camera();
     shader->set_vec3("viewPos", camera->Position);
+
+    set_spot_light(shader);
+    set_star_light(shader);
 }
 
 void MainController::draw_csilla() {
@@ -127,7 +130,7 @@ void MainController::draw_terran() {
 void MainController::draw_star() {
     auto resources = get<engine::resources::ResourcesController>();
     auto star      = resources->model("star");
-    auto shader    = resources->shader("planet");
+    auto shader    = resources->shader("star");
     shader->use();
 
     auto graphics = get<engine::graphics::GraphicsController>();
@@ -143,6 +146,31 @@ void MainController::draw_star() {
     shader->set_vec3("viewPos", camera->Position);
 
     star->draw(shader);
+}
+
+void MainController::set_spot_light(engine::resources::Shader *shader) {
+    auto graphics = get<engine::graphics::GraphicsController>();
+    auto camera   = graphics->camera();
+
+    shader->set_vec3("light.position", camera->Position);
+    shader->set_vec3("light.direction", camera->Front);
+    shader->set_float("light.cutOff", glm::cos(glm::radians(10.5f)));
+    shader->set_float("light.outerCutOff", glm::cos(glm::radians(12.5f)));
+
+    // light properties
+    shader->set_vec3("light.ambient", glm::vec3(0.1f, 0.1f, 0.1f));
+    // we configure the diffuse intensity slightly higher; the right lighting conditions differ with each lighting method and environment.
+    // each environment and lighting type requires some tweaking to get the best out of your environment.
+    shader->set_vec3("light.diffuse", m_spotLightColor);
+    shader->set_vec3("light.specular", m_spotLightColor);
+    shader->set_float("light.constant", 1.0f);
+    shader->set_float("light.linear", 0.35f);
+    shader->set_float("light.quadratic", 0.44f);
+}
+
+void MainController::set_star_light(engine::resources::Shader *shader) {
+    shader->set_vec3("lightPos", m_starPos);
+    shader->set_vec3("lightColor", m_starColor);
 }
 
 void MainController::begin_draw() {

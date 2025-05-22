@@ -38,6 +38,10 @@ private:
 
     void configure_planet();
 
+    void set_spot_light(engine::resources::Shader *shader);
+
+    void set_star_light(engine::resources::Shader *shader);
+
     void draw_star();
 
     void update_camera();
@@ -49,6 +53,7 @@ private:
 
     glm::vec3 m_starPos = glm::vec3(-5.0f, 0.0f, -8.0f);
     glm::vec3 m_starColor = glm::vec3(1.0f, 0.9f, 0.6f);
+    glm::vec3 m_spotLightColor = glm::vec3(0.7f, 0.7f, 0.7f);
 
     glm::vec3 m_csillaPos = glm::vec3(0.5f, 0.0f, -1.0f);
     int m_csillaSpeed = 10000;
