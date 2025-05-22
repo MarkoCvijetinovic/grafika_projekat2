@@ -32,8 +32,9 @@ in vec3 Normal;
 in vec2 TexCoords;
 
 uniform sampler2D texture_diffuse1;
+uniform float luminocity;
 
 void main()
 {
-    FragColor = vec4(texture(texture_diffuse1, TexCoords).rgb, 1.0);
+    FragColor = vec4(texture(texture_diffuse1, TexCoords).rgb * luminocity, 1.0);
 }

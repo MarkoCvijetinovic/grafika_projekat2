@@ -140,6 +140,7 @@ void MainController::draw_star() {
     model           = translate(model, m_starPos);
     model           = scale(model, glm::vec3(0.6f));
     shader->set_mat4("model", model);
+    shader->set_float("luminocity", m_starLuminocity);
 
     auto camera = graphics->camera();
     shader->set_vec3("viewPos", camera->Position);
@@ -260,4 +261,21 @@ void MainController::poll_events() {
     if (platform->key(engine::platform::KeyId::KEY_P).is_down()) {
         m_spotLightColor[2] = std::max(m_spotLightColor[2] - 0.02f, 0.0f);
     }
+
+    if (platform->key(engine::platform::KeyId::KEY_T).is_down() && !m_starKeyPressed) {
+        std::thread(&MainController::alter_star, this).detach();
+        m_starKeyPressed = true;
+    }
+    if (platform->key(engine::platform::KeyId::KEY_T).is_up()) {
+        m_starKeyPressed = false;
+    }
+}
+void MainController::alter_star() {
+    std::this_thread::sleep_for(std::chrono::seconds(3));
+    m_starLuminocity *= 1.5f;
+    std::this_thread::sleep_for(std::chrono::seconds(3));
+    m_starLuminocity /= 1.5f;
+    m_terranScale *= 2.0f;
+    std::this_thread::sleep_for(std::chrono::seconds(3));
+    m_terranScale /= 2.0f;
 }

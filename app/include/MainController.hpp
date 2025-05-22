@@ -44,6 +44,8 @@ private:
 
     void draw_star();
 
+    void alter_star();
+
     void update_camera();
 
     bool cursor_enabled{true};
@@ -59,6 +61,8 @@ private:
     int m_csillaSpeed = 10000;
 
     float m_terranScale = 0.1f;
+    float m_starLuminocity = 1.8f;
+    bool m_starKeyPressed = false;
 };
 
 #endif //MAINCONTROLLER_HPP
