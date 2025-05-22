@@ -40,6 +40,8 @@ private:
 
     void initialize_asteroids();
 
+    void initialize_bloom();
+
     void configure_planet();
 
     void set_spot_light(engine::resources::Shader *shader);
@@ -67,6 +69,10 @@ private:
     float m_terranScale = 0.1f;
     float m_starLuminocity = 1.8f;
     bool m_starKeyPressed = false;
+
+    bool m_bloom = true;
+    bool m_bloomKeyPressed = false;
+    float m_exposure = 1.5f;
 };
 
 #endif //MAINCONTROLLER_HPP

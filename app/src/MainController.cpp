@@ -32,7 +32,19 @@ void MainController::initialize() {
     platform->register_platform_event_observer(std::make_unique<MainPlatformEventObserver>());
     engine::graphics::OpenGL::enable_depth_testing();
 
+    initialize_bloom();
     initialize_asteroids();
+}
+
+void MainController::initialize_bloom() {
+    auto resources = get<engine::resources::ResourcesController>();
+    auto platform  = get<engine::platform::PlatformController>();
+
+    auto shaderBlur  = resources->shader("blur");
+    auto shaderBloom = resources->shader("bloom");
+
+    engine::graphics::OpenGL::initialize_bloom(platform->window()->width(), platform->window()->height(), shaderBlur,
+                                               shaderBloom);
 }
 
 void MainController::initialize_asteroids() {
@@ -249,6 +261,8 @@ void MainController::set_star_light(engine::resources::Shader *shader) {
 }
 
 void MainController::begin_draw() {
+    engine::graphics::OpenGL::begin_bloom();
+
     engine::graphics::OpenGL::clear_buffers();
 
     configure_planet();
@@ -274,6 +288,12 @@ void MainController::draw() {
 }
 
 void MainController::end_draw() {
+    auto resources   = get<engine::resources::ResourcesController>();
+    auto shaderBlur  = resources->shader("blur");
+    auto shaderBloom = resources->shader("bloom");
+
+    engine::graphics::OpenGL::end_bloom(shaderBlur, shaderBloom, m_bloom, m_exposure);
+
     auto platform = get<engine::platform::PlatformController>();
     platform->swap_buffers();
 }
@@ -316,6 +336,23 @@ void MainController::poll_events() {
     if (platform->key(engine::platform::KEY_F1).state() == engine::platform::Key::State::JustPressed) {
         cursor_enabled = !cursor_enabled;
         platform->set_enable_cursor(cursor_enabled);
+    }
+
+    if (platform->key(engine::platform::KeyId::KEY_SPACE).is_down() && !m_bloomKeyPressed) {
+        m_bloom           = !m_bloom;
+        m_bloomKeyPressed = true;
+    }
+    if (platform->key(engine::platform::KeyId::KEY_SPACE).is_up()) {
+        m_bloomKeyPressed = false;
+    }
+
+    if (platform->key(engine::platform::KeyId::KEY_Q).is_down()) {
+        if (m_exposure > 0.0f)
+            m_exposure -= 0.01f;
+        else
+            m_exposure = 0.0f;
+    } else if (platform->key(engine::platform::KeyId::KEY_E).is_down()) {
+        m_exposure += 0.01f;
     }
 
     if (platform->key(engine::platform::KeyId::KEY_J).is_down()) {
