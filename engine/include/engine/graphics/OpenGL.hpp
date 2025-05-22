@@ -7,8 +7,9 @@
 #define OPENGL_HPP
 
 #include <cstdint>
-#include <filesystem>
+#include <engine/resources/Model.hpp>
 #include <engine/resources/Shader.hpp>
+#include <filesystem>
 
 namespace engine::resources {
 class Skybox;
@@ -140,6 +141,11 @@ public:
     * @returns shader compilation error message.
     */
     static std::string get_compilation_error_message(uint32_t shader_id);
+
+    static void initialize_instancing(const resources::Model *model, const glm::mat4 *modelMatrices,
+                                          unsigned int amount);
+
+    static void draw_instanced(const resources::Model *model, unsigned int amount);
 
 private:
     /**

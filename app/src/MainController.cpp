@@ -31,6 +31,53 @@ void MainController::initialize() {
     auto platform = get<engine::platform::PlatformController>();
     platform->register_platform_event_observer(std::make_unique<MainPlatformEventObserver>());
     engine::graphics::OpenGL::enable_depth_testing();
+
+    initialize_asteroids();
+}
+
+void MainController::initialize_asteroids() {
+    m_modelMatrices = new glm::mat4[m_amount];
+    auto platform   = get<engine::platform::PlatformController>();
+    srand(static_cast<unsigned int>(platform->frame_time().current)); // initialize random seed
+
+    for (unsigned int i = 0; i < m_amount; i++) {
+        float offset = 0.25f;
+        float radius = 1.0;
+        auto model   = glm::mat4(1.0f);
+        model        = translate(model, m_csillaPos);
+
+        static std::random_device rd;
+        static std::mt19937 gen(rd());
+        static std::uniform_real_distribution dis_offset(-offset, offset);
+        static std::uniform_real_distribution dis_scale(0.003f, 0.015f);
+        static std::uniform_real_distribution dis_rotation(0.0f, 360.0f);
+
+        // 1. Translation: displace along a circle with 'radius' in range [-offset, offset]
+        float angle        = static_cast<float>(i) / static_cast<float>(m_amount) * 360.0f;
+        float displacement = dis_offset(gen);
+        float x            = std::sin(glm::radians(angle)) * radius + displacement;
+        displacement       = dis_offset(gen);
+        float y            = displacement * 0.4f; // Keep height smaller compared to width
+        displacement       = dis_offset(gen);
+        float z            = std::cos(glm::radians(angle)) * radius + displacement;
+        model              = glm::translate(model, glm::vec3(x, y, z));
+
+        // 2. Scale: Scale between 0.05 and 0.25
+        float scale = dis_scale(gen);
+        model       = glm::scale(model, glm::vec3(scale));
+
+        // 3. Rotation: Add random rotation around a (semi)randomly picked rotation axis vector
+        float rotAngle = dis_rotation(gen);
+        model          = glm::rotate(model, glm::radians(rotAngle), glm::vec3(0.4f, 0.6f, 0.8f));
+
+        // 4. now add to list of matrices
+        m_modelMatrices[i] = model;
+    }
+
+    auto resources = get<engine::resources::ResourcesController>();
+    auto asteroid  = resources->model("asteroid");
+
+    engine::graphics::OpenGL::initialize_instancing(asteroid, m_modelMatrices, m_amount);
 }
 
 bool MainController::loop() {
@@ -127,6 +174,34 @@ void MainController::draw_terran() {
     mars->draw(shader);
 }
 
+void MainController::draw_asteroid() {
+    auto resources = get<engine::resources::ResourcesController>();
+    auto asteroid  = resources->model("asteroid");
+    auto shader    = resources->shader("asteroid");
+    shader->use();
+
+    auto graphics = get<engine::graphics::GraphicsController>();
+    shader->set_mat4("projection", graphics->projection_matrix());
+    shader->set_mat4("view", graphics->camera()->view_matrix());
+
+    set_star_light(shader);
+    set_spot_light(shader);
+
+    auto platform = get<engine::platform::PlatformController>();
+    float angle   = fmod((platform->frame_time().current), 3000) / (3000.0f / 360);
+
+    auto rotation = translate(glm::mat4(1.0f), m_csillaPos);
+    rotation      = rotate(rotation, angle, glm::vec3(0.0f, 1.0f, 0.0f));
+    rotation      = translate(rotation, -m_csillaPos);
+
+    shader->set_mat4("moonRotation", rotation);
+
+    auto camera = graphics->camera();
+    shader->set_vec3("viewPos", camera->Position);
+
+    engine::graphics::OpenGL::draw_instanced(asteroid, m_amount);
+}
+
 void MainController::draw_star() {
     auto resources = get<engine::resources::ResourcesController>();
     auto star      = resources->model("star");
@@ -193,9 +268,9 @@ void MainController::draw() {
     draw_csilla();
     draw_spaceship();
     draw_terran();
+    draw_asteroid();
     draw_star();
     draw_skybox();
-    draw_star();
 }
 
 void MainController::end_draw() {

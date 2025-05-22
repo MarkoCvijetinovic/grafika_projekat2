@@ -211,4 +211,47 @@ int32_t stbi_number_of_channels_to_gl_format(int32_t number_of_channels) {
     }
 }
 
+void OpenGL::draw_instanced(const resources::Model *model, const unsigned int amount) {
+    for (unsigned int i = 0; i < model->meshes().size(); i++) {
+        glBindVertexArray(model->meshes()[i].VAO());
+        for (unsigned int j = 0; j < model->meshes()[i].textures().size(); j++) {
+            glActiveTexture(GL_TEXTURE0 + j);
+            glBindTexture(GL_TEXTURE_2D, model->meshes()[i].textures()[j]->id());
+        }
+        glDrawElementsInstanced(GL_TRIANGLES, model->meshes()[i].num_of_indices(),
+                                GL_UNSIGNED_INT,
+                                0, amount);
+        glBindVertexArray(0);
+    }
+}
+
+void OpenGL::initialize_instancing(const resources::Model *model, const glm::mat4 *modelMatrices,
+                                   const unsigned int amount) {
+    unsigned int buffer;
+    glGenBuffers(1, &buffer);
+    glBindBuffer(GL_ARRAY_BUFFER, buffer);
+    glBufferData(GL_ARRAY_BUFFER, amount * sizeof(glm::mat4), &modelMatrices[0], GL_STATIC_DRAW);
+
+    for (unsigned int i = 0; i < model->meshes().size(); i++) {
+        unsigned int VAO = model->meshes()[i].VAO();
+        glBindVertexArray(VAO);
+        // set attribute pointers for matrix (4 times vec4)
+        glEnableVertexAttribArray(3);
+        glVertexAttribPointer(3, 4, GL_FLOAT, GL_FALSE, sizeof(glm::mat4), (void *) 0);
+        glEnableVertexAttribArray(4);
+        glVertexAttribPointer(4, 4, GL_FLOAT, GL_FALSE, sizeof(glm::mat4), (void *) (sizeof(glm::vec4)));
+        glEnableVertexAttribArray(5);
+        glVertexAttribPointer(5, 4, GL_FLOAT, GL_FALSE, sizeof(glm::mat4), (void *) (2 * sizeof(glm::vec4)));
+        glEnableVertexAttribArray(6);
+        glVertexAttribPointer(6, 4, GL_FLOAT, GL_FALSE, sizeof(glm::mat4), (void *) (3 * sizeof(glm::vec4)));
+
+        glVertexAttribDivisor(3, 1);
+        glVertexAttribDivisor(4, 1);
+        glVertexAttribDivisor(5, 1);
+        glVertexAttribDivisor(6, 1);
+
+        glBindVertexArray(0);
+    }
+}
+
 };

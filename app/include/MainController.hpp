@@ -36,6 +36,10 @@ private:
 
     void draw_spaceship();
 
+    void draw_asteroid();
+
+    void initialize_asteroids();
+
     void configure_planet();
 
     void set_spot_light(engine::resources::Shader *shader);
