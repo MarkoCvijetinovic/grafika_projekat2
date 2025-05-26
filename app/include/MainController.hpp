@@ -26,6 +26,12 @@ private:
 
     void poll_events() override;
 
+    void update_camera();
+
+    void initialize_asteroids();
+
+    void initialize_bloom();
+
     void draw_skybox();
 
     void draw_phoenix();
@@ -36,25 +42,19 @@ private:
 
     void draw_spaceship();
 
-    void draw_asteroid();
+    void draw_asteroids();
 
-    void initialize_asteroids();
+    void draw_star();
 
-    void initialize_bloom();
-
-    void configure_planet();
+    void configure_planets();
 
     void set_spot_light(engine::resources::Shader *shader);
 
     void set_star_light(engine::resources::Shader *shader);
 
-    void draw_star();
-
     void alter_star();
 
     void set_rotation(engine::resources::Shader *shader, int speed);
-
-    void update_camera();
 
     bool cursor_enabled{true};
 

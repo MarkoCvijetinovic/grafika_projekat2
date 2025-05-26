@@ -27,6 +27,14 @@ void MainPlatformEventObserver::on_mouse_move(engine::platform::MousePosition po
     //camera->process_mouse_movement(position.x, position.y, false);
 }
 
+bool MainController::loop() {
+    auto platform = get<engine::platform::PlatformController>();
+    if (platform->key(engine::platform::KeyId::KEY_ESCAPE).is_down())
+        return false;
+
+    return true;
+}
+
 void MainController::initialize() {
     auto platform = get<engine::platform::PlatformController>();
     platform->register_platform_event_observer(std::make_unique<MainPlatformEventObserver>());
@@ -92,29 +100,30 @@ void MainController::initialize_asteroids() {
     engine::graphics::OpenGL::initialize_instancing(asteroid, m_modelMatrices, m_amount);
 }
 
-bool MainController::loop() {
-    auto platform = get<engine::platform::PlatformController>();
-    if (platform->key(engine::platform::KeyId::KEY_ESCAPE).is_down())
-        return false;
+void MainController::begin_draw() {
+    engine::graphics::OpenGL::begin_bloom();
 
-    return true;
+    engine::graphics::OpenGL::clear_buffers();
+
+    configure_planets();
 }
 
-void MainController::draw_phoenix() {
+void MainController::draw() {
+    draw_phoenix();
+    draw_csilla();
+    draw_spaceship();
+    draw_terran();
+    draw_asteroids();
+    draw_star();
+    draw_skybox();
+}
+
+void MainController::draw_skybox() {
     auto resources = get<engine::resources::ResourcesController>();
-    auto phoenix   = resources->model("phoenix");
-    auto shader    = resources->shader("planet");
-    shader->use();
-
-    glm::mat4 model = glm::mat4(1.0f);
-    model           = translate(model, glm::vec3(-2.0f, 0.0f, -3.0f));
-    model           = scale(model, glm::vec3(0.8f));
-    model           = rotate(model, glm::radians(-20.0f), glm::vec3(1.0f, 0.0f, 0.0f));
-    shader->set_mat4("model", model);
-
-    set_rotation(shader, 6000);
-
-    phoenix->draw(shader);
+    auto skybox    = resources->skybox("galaxy_skybox");
+    auto shader    = resources->shader("skybox");
+    auto graphics  = get<engine::graphics::GraphicsController>();
+    graphics->draw_skybox(shader, skybox);
 }
 
 void MainController::draw_spaceship() {
@@ -134,7 +143,7 @@ void MainController::draw_spaceship() {
     spaceship->draw(shader);
 }
 
-void MainController::configure_planet() {
+void MainController::configure_planets() {
     auto resources = get<engine::resources::ResourcesController>();
     auto shader    = resources->shader("planet");
     shader->use();
@@ -148,6 +157,23 @@ void MainController::configure_planet() {
 
     set_spot_light(shader);
     set_star_light(shader);
+}
+
+void MainController::draw_phoenix() {
+    auto resources = get<engine::resources::ResourcesController>();
+    auto phoenix   = resources->model("phoenix");
+    auto shader    = resources->shader("planet");
+    shader->use();
+
+    glm::mat4 model = glm::mat4(1.0f);
+    model           = translate(model, glm::vec3(-2.0f, 0.0f, -3.0f));
+    model           = scale(model, glm::vec3(0.8f));
+    model           = rotate(model, glm::radians(-20.0f), glm::vec3(1.0f, 0.0f, 0.0f));
+    shader->set_mat4("model", model);
+
+    set_rotation(shader, 6000);
+
+    phoenix->draw(shader);
 }
 
 void MainController::draw_csilla() {
@@ -196,7 +222,7 @@ void MainController::draw_terran() {
     mars->draw(shader);
 }
 
-void MainController::draw_asteroid() {
+void MainController::draw_asteroids() {
     auto resources = get<engine::resources::ResourcesController>();
     auto asteroid  = resources->model("asteroid");
     auto shader    = resources->shader("asteroid");
@@ -271,44 +297,6 @@ void MainController::set_star_light(engine::resources::Shader *shader) {
     shader->set_vec3("lightColor", m_starColor);
 }
 
-void MainController::begin_draw() {
-    engine::graphics::OpenGL::begin_bloom();
-
-    engine::graphics::OpenGL::clear_buffers();
-
-    configure_planet();
-}
-
-void MainController::draw_skybox() {
-    auto resources = get<engine::resources::ResourcesController>();
-    auto skybox    = resources->skybox("galaxy_skybox");
-    auto shader    = resources->shader("skybox");
-    auto graphics  = get<engine::graphics::GraphicsController>();
-    graphics->draw_skybox(shader, skybox);
-}
-
-void MainController::draw() {
-    configure_planet();
-    draw_phoenix();
-    draw_csilla();
-    draw_spaceship();
-    draw_terran();
-    draw_asteroid();
-    draw_star();
-    draw_skybox();
-}
-
-void MainController::end_draw() {
-    auto resources   = get<engine::resources::ResourcesController>();
-    auto shaderBlur  = resources->shader("blur");
-    auto shaderBloom = resources->shader("bloom");
-
-    engine::graphics::OpenGL::end_bloom(shaderBlur, shaderBloom, m_bloom, m_exposure);
-
-    auto platform = get<engine::platform::PlatformController>();
-    platform->swap_buffers();
-}
-
 void MainController::set_rotation(engine::resources::Shader *shader, int speed) {
     auto platform = get<engine::platform::PlatformController>();
 
@@ -322,17 +310,28 @@ void MainController::set_rotation(engine::resources::Shader *shader, int speed) 
     //shader->set_mat4("starRotation", glm::mat4(1.0f));
 }
 
+void MainController::end_draw() {
+    auto resources   = get<engine::resources::ResourcesController>();
+    auto shaderBlur  = resources->shader("blur");
+    auto shaderBloom = resources->shader("bloom");
+
+    engine::graphics::OpenGL::end_bloom(shaderBlur, shaderBloom, m_bloom, m_exposure);
+
+    auto platform = get<engine::platform::PlatformController>();
+    platform->swap_buffers();
+}
+
 void MainController::update() {
     update_camera();
 }
 
 void MainController::update_camera() {
-    auto gui = engine::core::Controller::get<GUIController>();
+    auto gui = get<GUIController>();
     if (gui->is_enabled()) {
         return;
     }
-    auto platform = engine::core::Controller::get<engine::platform::PlatformController>();
-    auto camera = engine::core::Controller::get<engine::graphics::GraphicsController>()->camera();
+    auto platform = get<engine::platform::PlatformController>();
+    auto camera = get<engine::graphics::GraphicsController>()->camera();
     float dt = platform->dt();
     if (platform->key(engine::platform::KEY_W)
                 .state() == engine::platform::Key::State::Pressed) {
