@@ -13,12 +13,15 @@ out vec3 Normal;
 uniform mat4 view;
 uniform mat4 projection;
 
+uniform mat4 moonRotation;
+uniform mat4 starRotation;
+
 void main()
 {
-    FragPos = vec3(aInstanceMatrix * vec4(aPos, 1.0));
-    Normal = mat3(aInstanceMatrix) * aNormal;
+    FragPos = vec3(starRotation * moonRotation * aInstanceMatrix * vec4(aPos, 1.0));
+    Normal = mat3(starRotation * moonRotation * aInstanceMatrix) * aNormal;
     TexCoords = aTexCoords;
-    gl_Position = projection * view * aInstanceMatrix * vec4(aPos, 1.0);
+    gl_Position = projection * view * starRotation * moonRotation * aInstanceMatrix * vec4(aPos, 1.0);
 }
 
 //#shader fragment

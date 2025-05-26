@@ -52,6 +52,8 @@ private:
 
     void alter_star();
 
+    void set_rotation(engine::resources::Shader *shader, int speed);
+
     void update_camera();
 
     bool cursor_enabled{true};

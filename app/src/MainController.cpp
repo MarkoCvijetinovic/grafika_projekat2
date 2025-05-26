@@ -112,6 +112,8 @@ void MainController::draw_phoenix() {
     model           = rotate(model, glm::radians(-20.0f), glm::vec3(1.0f, 0.0f, 0.0f));
     shader->set_mat4("model", model);
 
+    set_rotation(shader, 6000);
+
     phoenix->draw(shader);
 }
 
@@ -126,6 +128,8 @@ void MainController::draw_spaceship() {
     model           = scale(model, glm::vec3(0.001f));
     model           = rotate(model, glm::radians(20.0f), glm::vec3(1.0f, 0.0f, 0.0f));
     shader->set_mat4("model", model);
+
+    set_rotation(shader, m_csillaSpeed);
 
     spaceship->draw(shader);
 }
@@ -157,6 +161,8 @@ void MainController::draw_csilla() {
     model           = scale(model, glm::vec3(0.1f));
     shader->set_mat4("model", model);
 
+    set_rotation(shader, m_csillaSpeed);
+
     csilla->draw(shader);
 
     shader->set_float("lightModifier", 1.3f);
@@ -166,6 +172,8 @@ void MainController::draw_csilla() {
         model = scale(model, glm::vec3(0.1f));
         model = rotate(model, glm::radians(20.0f), glm::vec3(1.0f, 0.0f, 0.0f));
         shader->set_mat4("model", model);
+
+        set_rotation(shader, 3000);
 
         csilla->draw(shader);
     }
@@ -183,6 +191,8 @@ void MainController::draw_terran() {
     model           = scale(model, glm::vec3(m_terranScale));
     shader->set_mat4("model", model);
 
+    set_rotation(shader, 18000);
+
     mars->draw(shader);
 }
 
@@ -198,6 +208,7 @@ void MainController::draw_asteroid() {
 
     set_star_light(shader);
     set_spot_light(shader);
+    set_rotation(shader, m_csillaSpeed);
 
     auto platform = get<engine::platform::PlatformController>();
     float angle   = fmod((platform->frame_time().current), 3000) / (3000.0f / 360);
@@ -296,6 +307,19 @@ void MainController::end_draw() {
 
     auto platform = get<engine::platform::PlatformController>();
     platform->swap_buffers();
+}
+
+void MainController::set_rotation(engine::resources::Shader *shader, int speed) {
+    auto platform = get<engine::platform::PlatformController>();
+
+    float angle = fmod((platform->frame_time().current), speed) / (speed / 360.0);
+
+    auto rotation = translate(glm::mat4(1.0f), m_starPos);
+    rotation      = rotate(rotation, angle, glm::vec3(0.0f, 1.0f, 0.0f));
+    rotation      = translate(rotation, -m_starPos);
+
+    shader->set_mat4("starRotation", rotation);
+    //shader->set_mat4("starRotation", glm::mat4(1.0f));
 }
 
 void MainController::update() {
