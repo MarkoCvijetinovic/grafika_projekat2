@@ -410,7 +410,7 @@ void MainController::alter_star() {
     m_starLuminocity *= 1.5f;
     std::this_thread::sleep_for(std::chrono::seconds(3));
     m_starLuminocity /= 1.5f;
-    m_terranScale *= 2.0f;
-    std::this_thread::sleep_for(std::chrono::seconds(3));
-    m_terranScale /= 2.0f;
+    //m_terranScale *= 1.5f;
+    //std::this_thread::sleep_for(std::chrono::seconds(3));
+    //m_terranScale /= 1.5f;
 }
