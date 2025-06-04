@@ -152,8 +152,8 @@ public:
     static void end_bloom(const resources::Shader *shaderBlur, const resources::Shader *shaderBloom, float bloom,
                           float exposure);
 
-    static void initialize_instancing(const resources::Model *model, const glm::mat4 *modelMatrices,
-                                          unsigned int amount);
+    static void initialize_instancing(const resources::Model *model, const std::vector<glm::mat4> &modelMatrices,
+                                      unsigned int amount);
 
     static void draw_instanced(const resources::Model *model, unsigned int amount);
 

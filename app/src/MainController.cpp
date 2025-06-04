@@ -56,9 +56,7 @@ void MainController::initialize_bloom() {
 }
 
 void MainController::initialize_asteroids() {
-    m_modelMatrices = new glm::mat4[m_amount];
-    auto platform   = get<engine::platform::PlatformController>();
-    srand(static_cast<unsigned int>(platform->frame_time().current)); // initialize random seed
+    m_modelMatrices.resize(m_amount);
 
     for (unsigned int i = 0; i < m_amount; i++) {
         float offset = 0.25f;
@@ -73,7 +71,7 @@ void MainController::initialize_asteroids() {
         static std::uniform_real_distribution dis_rotation(0.0f, 360.0f);
 
         // 1. Translation: displace along a circle with 'radius' in range [-offset, offset]
-        float angle        = static_cast<float>(i) / static_cast<float>(m_amount) * 360.0f;
+        float angle        = i / static_cast<float>(m_amount) * 360.0f;
         float displacement = dis_offset(gen);
         float x            = std::sin(glm::radians(angle)) * radius + displacement;
         displacement       = dis_offset(gen);

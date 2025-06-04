@@ -1,13 +1,16 @@
-#include <glad/glad.h>
-#include <filesystem>
 #include <array>
-#include <stb_image.h>
+#include <engine/graphics/Camera.hpp>
 #include <engine/graphics/OpenGL.hpp>
 #include <engine/resources/Shader.hpp>
 #include <engine/resources/ShaderCompiler.hpp>
 #include <engine/resources/Skybox.hpp>
 #include <engine/util/Errors.hpp>
 #include <engine/util/Utils.hpp>
+#include <filesystem>
+#include <glad/glad.h>
+#include <iosfwd>
+#include <stb_image.h>
+#include <vector>
 
 namespace engine::graphics {
 int32_t OpenGL::shader_type_to_opengl_type(resources::ShaderType type) {
@@ -224,42 +227,41 @@ void OpenGL::initialize_bloom(const int SCR_WIDTH, const int SCR_HEIGHT, const r
                               const resources::Shader *shaderBloom) {
     m_quadVAO = 0;
 
-    glGenFramebuffers(1, &m_hdrFBO);
-    glBindFramebuffer(GL_FRAMEBUFFER, m_hdrFBO);
-    glGenTextures(2, m_colorBuffers);
+    CHECKED_GL_CALL(glGenFramebuffers,1, &m_hdrFBO);
+    CHECKED_GL_CALL(glBindFramebuffer, GL_FRAMEBUFFER, m_hdrFBO);
+    CHECKED_GL_CALL(glGenTextures, 2, m_colorBuffers);
     for (unsigned int i = 0; i < 2; i++) {
-        glBindTexture(GL_TEXTURE_2D, m_colorBuffers[i]);
-        glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA16F, SCR_WIDTH, SCR_HEIGHT, 0,
-                     GL_RGBA, GL_FLOAT, NULL);
-        glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
-        glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
-        glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
-        glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
-        glFramebufferTexture2D(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0 + i, GL_TEXTURE_2D, m_colorBuffers[i], 0);
+        CHECKED_GL_CALL(glBindTexture, GL_TEXTURE_2D, m_colorBuffers[i]);
+        CHECKED_GL_CALL(glTexImage2D, GL_TEXTURE_2D, 0, GL_RGBA16F, SCR_WIDTH, SCR_HEIGHT, 0, GL_RGBA, GL_FLOAT, nullptr);
+        CHECKED_GL_CALL(glTexParameteri, GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
+        CHECKED_GL_CALL(glTexParameteri, GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
+        CHECKED_GL_CALL(glTexParameteri, GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
+        CHECKED_GL_CALL(glTexParameteri, GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
+        CHECKED_GL_CALL(glFramebufferTexture2D, GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0 + i, GL_TEXTURE_2D, m_colorBuffers[i], 0);
     }
 
     unsigned int rboDepth;
-    glGenRenderbuffers(1, &rboDepth);
-    glBindRenderbuffer(GL_RENDERBUFFER, rboDepth);
-    glRenderbufferStorage(GL_RENDERBUFFER, GL_DEPTH_COMPONENT, SCR_WIDTH, SCR_HEIGHT);
-    glFramebufferRenderbuffer(GL_FRAMEBUFFER, GL_DEPTH_ATTACHMENT, GL_RENDERBUFFER, rboDepth);
+    CHECKED_GL_CALL(glGenRenderbuffers, 1, &rboDepth);
+    CHECKED_GL_CALL(glBindRenderbuffer, GL_RENDERBUFFER, rboDepth);
+    CHECKED_GL_CALL(glRenderbufferStorage, GL_RENDERBUFFER, GL_DEPTH_COMPONENT, SCR_WIDTH, SCR_HEIGHT);
+    CHECKED_GL_CALL(glFramebufferRenderbuffer, GL_FRAMEBUFFER, GL_DEPTH_ATTACHMENT, GL_RENDERBUFFER, rboDepth);
     unsigned int attachments[2] = {GL_COLOR_ATTACHMENT0, GL_COLOR_ATTACHMENT1};
-    glDrawBuffers(2, attachments);
+    CHECKED_GL_CALL(glDrawBuffers, 2, attachments);
     if (glCheckFramebufferStatus(GL_FRAMEBUFFER) != GL_FRAMEBUFFER_COMPLETE) throw util::EngineError(util::EngineError::Type::ConfigurationError, "Framebuffer not complete!");
-    glBindFramebuffer(GL_FRAMEBUFFER, 0);
+    CHECKED_GL_CALL(glBindFramebuffer, GL_FRAMEBUFFER, 0);
 
-    glGenFramebuffers(2, m_pingpongFBO);
-    glGenTextures(2, m_pingpongColorbuffers);
+    CHECKED_GL_CALL(glGenFramebuffers, 2, m_pingpongFBO);
+    CHECKED_GL_CALL(glGenTextures, 2, m_pingpongColorbuffers);
     for (unsigned int i = 0; i < 2; i++) {
-        glBindFramebuffer(GL_FRAMEBUFFER, m_pingpongFBO[i]);
-        glBindTexture(GL_TEXTURE_2D, m_pingpongColorbuffers[i]);
-        glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA16F, SCR_WIDTH, SCR_HEIGHT, 0, GL_RGBA, GL_FLOAT, NULL);
-        glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
-        glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
+        CHECKED_GL_CALL(glBindFramebuffer, GL_FRAMEBUFFER, m_pingpongFBO[i]);
+        CHECKED_GL_CALL(glBindTexture, GL_TEXTURE_2D, m_pingpongColorbuffers[i]);
+        CHECKED_GL_CALL(glTexImage2D, GL_TEXTURE_2D, 0, GL_RGBA16F, SCR_WIDTH, SCR_HEIGHT, 0, GL_RGBA, GL_FLOAT, nullptr);
+        CHECKED_GL_CALL(glTexParameteri, GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
+        CHECKED_GL_CALL(glTexParameteri, GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
 
-        glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
-        glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
-        glFramebufferTexture2D(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0, GL_TEXTURE_2D, m_pingpongColorbuffers[i], 0);
+        CHECKED_GL_CALL(glTexParameteri, GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
+        CHECKED_GL_CALL(glTexParameteri, GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
+        CHECKED_GL_CALL(glFramebufferTexture2D, GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0, GL_TEXTURE_2D, m_pingpongColorbuffers[i], 0);
         if (glCheckFramebufferStatus(GL_FRAMEBUFFER) != GL_FRAMEBUFFER_COMPLETE) throw util::EngineError(util::EngineError::Type::ConfigurationError, "Framebuffer not complete!");
     }
 
@@ -280,24 +282,24 @@ void OpenGL::render_quad() {
                 1.0f, -1.0f, 0.0f, 1.0f, 0.0f,
         };
         // setup plane VAO
-        glGenVertexArrays(1, &m_quadVAO);
-        glGenBuffers(1, &m_quadVBO);
-        glBindVertexArray(m_quadVAO);
-        glBindBuffer(GL_ARRAY_BUFFER, m_quadVBO);
-        glBufferData(GL_ARRAY_BUFFER, sizeof(quadVertices), &quadVertices, GL_STATIC_DRAW);
-        glEnableVertexAttribArray(0);
-        glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 5 * sizeof(float), (void *) 0);
-        glEnableVertexAttribArray(1);
-        glVertexAttribPointer(1, 2, GL_FLOAT, GL_FALSE, 5 * sizeof(float), (void *) (3 * sizeof(float)));
+        CHECKED_GL_CALL(glGenVertexArrays, 1, &m_quadVAO);
+        CHECKED_GL_CALL(glGenBuffers, 1, &m_quadVBO);
+        CHECKED_GL_CALL(glBindVertexArray, m_quadVAO);
+        CHECKED_GL_CALL(glBindBuffer, GL_ARRAY_BUFFER, m_quadVBO);
+        CHECKED_GL_CALL(glBufferData, GL_ARRAY_BUFFER, sizeof(quadVertices), &quadVertices, GL_STATIC_DRAW);
+        CHECKED_GL_CALL(glEnableVertexAttribArray, 0);
+        CHECKED_GL_CALL(glVertexAttribPointer, 0, 3, GL_FLOAT, GL_FALSE, 5 * sizeof(float), (void *) 0);
+        CHECKED_GL_CALL(glEnableVertexAttribArray, 1);
+        CHECKED_GL_CALL(glVertexAttribPointer, 1, 2, GL_FLOAT, GL_FALSE, 5 * sizeof(float), (void *) (3 * sizeof(float)));
     }
-    glBindVertexArray(m_quadVAO);
-    glDrawArrays(GL_TRIANGLE_STRIP, 0, 4);
-    glBindVertexArray(0);
+    CHECKED_GL_CALL(glBindVertexArray, m_quadVAO);
+    CHECKED_GL_CALL(glDrawArrays, GL_TRIANGLE_STRIP, 0, 4);
+    CHECKED_GL_CALL(glBindVertexArray, 0);
 }
 
 void OpenGL::end_bloom(const resources::Shader *shaderBlur, const resources::Shader *shaderBloom, const float bloom,
                        const float exposure) {
-    glBindFramebuffer(GL_FRAMEBUFFER, 0);
+    CHECKED_GL_CALL(glBindFramebuffer, GL_FRAMEBUFFER, 0);
     // 2. blur bright fragments with two-pass Gaussian Blur
     // --------------------------------------------------
     bool horizontal = true, first_iteration = true;
@@ -305,25 +307,25 @@ void OpenGL::end_bloom(const resources::Shader *shaderBlur, const resources::Sha
 
     shaderBlur->use();
     for (unsigned int i = 0; i < amount; i++) {
-        glBindFramebuffer(GL_FRAMEBUFFER, m_pingpongFBO[horizontal]);
+        CHECKED_GL_CALL(glBindFramebuffer, GL_FRAMEBUFFER, m_pingpongFBO[horizontal]);
         shaderBlur->set_int("horizontal", horizontal);
-        glActiveTexture(GL_TEXTURE0);
-        glBindTexture(GL_TEXTURE_2D, first_iteration ? m_colorBuffers[1] : m_pingpongColorbuffers[!horizontal]);
+        CHECKED_GL_CALL(glActiveTexture, GL_TEXTURE0);
+        CHECKED_GL_CALL(glBindTexture, GL_TEXTURE_2D, first_iteration ? m_colorBuffers[1] : m_pingpongColorbuffers[!horizontal]);
         // bind texture of other framebuffer (or scene if first iteration)
         render_quad();
         horizontal = !horizontal;
         if (first_iteration) first_iteration = false;
     }
-    glBindFramebuffer(GL_FRAMEBUFFER, 0);
+    CHECKED_GL_CALL(glBindFramebuffer, GL_FRAMEBUFFER, 0);
 
     // 3. now render floating point color buffer to 2D quad and tonemap HDR colors to default framebuffer's (clamped) color range
     // --------------------------------------------------------------------------------------------------------------------------
-    glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+    CHECKED_GL_CALL(glClear, GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
     shaderBloom->use();
-    glActiveTexture(GL_TEXTURE0);
-    glBindTexture(GL_TEXTURE_2D, m_colorBuffers[0]);
-    glActiveTexture(GL_TEXTURE1);
-    glBindTexture(GL_TEXTURE_2D, m_pingpongColorbuffers[!horizontal]);
+    CHECKED_GL_CALL(glActiveTexture, GL_TEXTURE0);
+    CHECKED_GL_CALL(glBindTexture, GL_TEXTURE_2D, m_colorBuffers[0]);
+    CHECKED_GL_CALL(glActiveTexture, GL_TEXTURE1);
+    CHECKED_GL_CALL(glBindTexture, GL_TEXTURE_2D, m_pingpongColorbuffers[!horizontal]);
 
     render_quad();
 
@@ -335,44 +337,43 @@ void OpenGL::end_bloom(const resources::Shader *shaderBlur, const resources::Sha
 
 void OpenGL::draw_instanced(const resources::Model *model, const unsigned int amount) {
     for (unsigned int i = 0; i < model->meshes().size(); i++) {
-        glBindVertexArray(model->meshes()[i].VAO());
+        CHECKED_GL_CALL(glBindVertexArray, model->meshes()[i].VAO());
         for (unsigned int j = 0; j < model->meshes()[i].textures().size(); j++) {
-            glActiveTexture(GL_TEXTURE0 + j);
+            CHECKED_GL_CALL(glActiveTexture, GL_TEXTURE0 + j);
             glBindTexture(GL_TEXTURE_2D, model->meshes()[i].textures()[j]->id());
         }
-        glDrawElementsInstanced(GL_TRIANGLES, model->meshes()[i].num_of_indices(),
-                                GL_UNSIGNED_INT,
-                                0, amount);
-        glBindVertexArray(0);
+        CHECKED_GL_CALL(glDrawElementsInstanced, GL_TRIANGLES, model->meshes()[i].num_of_indices(),
+                                GL_UNSIGNED_INT, nullptr, amount);
+        CHECKED_GL_CALL(glBindVertexArray, 0);
     }
 }
 
-void OpenGL::initialize_instancing(const resources::Model *model, const glm::mat4 *modelMatrices,
+void OpenGL::initialize_instancing(const resources::Model *model, const std::vector<glm::mat4> &modelMatrices,
                                    const unsigned int amount) {
     unsigned int buffer;
-    glGenBuffers(1, &buffer);
-    glBindBuffer(GL_ARRAY_BUFFER, buffer);
-    glBufferData(GL_ARRAY_BUFFER, amount * sizeof(glm::mat4), &modelMatrices[0], GL_STATIC_DRAW);
+    CHECKED_GL_CALL(glGenBuffers, 1, &buffer);
+    CHECKED_GL_CALL(glBindBuffer, GL_ARRAY_BUFFER, buffer);
+    CHECKED_GL_CALL(glBufferData, GL_ARRAY_BUFFER, amount * sizeof(glm::mat4), &modelMatrices[0], GL_STATIC_DRAW);
 
     for (unsigned int i = 0; i < model->meshes().size(); i++) {
         unsigned int VAO = model->meshes()[i].VAO();
-        glBindVertexArray(VAO);
+        CHECKED_GL_CALL(glBindVertexArray, VAO);
         // set attribute pointers for matrix (4 times vec4)
-        glEnableVertexAttribArray(3);
-        glVertexAttribPointer(3, 4, GL_FLOAT, GL_FALSE, sizeof(glm::mat4), (void *) 0);
-        glEnableVertexAttribArray(4);
-        glVertexAttribPointer(4, 4, GL_FLOAT, GL_FALSE, sizeof(glm::mat4), (void *) (sizeof(glm::vec4)));
-        glEnableVertexAttribArray(5);
-        glVertexAttribPointer(5, 4, GL_FLOAT, GL_FALSE, sizeof(glm::mat4), (void *) (2 * sizeof(glm::vec4)));
-        glEnableVertexAttribArray(6);
-        glVertexAttribPointer(6, 4, GL_FLOAT, GL_FALSE, sizeof(glm::mat4), (void *) (3 * sizeof(glm::vec4)));
+        CHECKED_GL_CALL(glEnableVertexAttribArray, 3);
+        CHECKED_GL_CALL(glVertexAttribPointer, 3, 4, GL_FLOAT, GL_FALSE, sizeof(glm::mat4), (void *) 0);
+        CHECKED_GL_CALL(glEnableVertexAttribArray, 4);
+        CHECKED_GL_CALL(glVertexAttribPointer, 4, 4, GL_FLOAT, GL_FALSE, sizeof(glm::mat4), (void *) (sizeof(glm::vec4)));
+        CHECKED_GL_CALL(glEnableVertexAttribArray, 5);
+        CHECKED_GL_CALL(glVertexAttribPointer, 5, 4, GL_FLOAT, GL_FALSE, sizeof(glm::mat4), (void *) (2 * sizeof(glm::vec4)));
+        CHECKED_GL_CALL(glEnableVertexAttribArray, 6);
+        CHECKED_GL_CALL(glVertexAttribPointer, 6, 4, GL_FLOAT, GL_FALSE, sizeof(glm::mat4), (void *) (3 * sizeof(glm::vec4)));
 
-        glVertexAttribDivisor(3, 1);
-        glVertexAttribDivisor(4, 1);
-        glVertexAttribDivisor(5, 1);
-        glVertexAttribDivisor(6, 1);
+        CHECKED_GL_CALL(glVertexAttribDivisor,3, 1);
+        CHECKED_GL_CALL(glVertexAttribDivisor, 4, 1);
+        CHECKED_GL_CALL(glVertexAttribDivisor, 5, 1);
+        CHECKED_GL_CALL(glVertexAttribDivisor, 6, 1);
 
-        glBindVertexArray(0);
+        CHECKED_GL_CALL(glBindVertexArray,0);
     }
 }
 

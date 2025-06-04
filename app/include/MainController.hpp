@@ -59,7 +59,7 @@ private:
     bool cursor_enabled{true};
 
     unsigned int m_amount = 2000;
-    glm::mat4 *m_modelMatrices = nullptr;
+    std::vector<glm::mat4> m_modelMatrices;
 
     glm::vec3 m_starPos = glm::vec3(-5.0f, 0.0f, -8.0f);
     glm::vec3 m_starColor = glm::vec3(1.0f, 0.9f, 0.6f);

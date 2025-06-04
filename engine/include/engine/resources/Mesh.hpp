@@ -52,7 +52,7 @@ public:
         return m_num_indices;
     }
 
-    [[nodiscard]] std::vector<Texture *> textures() const {
+    [[nodiscard]] const std::vector<Texture *>& textures() const {
         return m_textures;
     };
 
