@@ -19,8 +19,8 @@ T -> Čini zvezdu sjajnijom za 3 sekunde, onda poveća jednu od planeta za 3 sek
 
 [x] Two types of lighting with customizable colors and movement through GUI or ACTIONS
 
-[x] press T --- after 3 seconds ---Triggers---> Star's brightness increases
-           ---> after 3 seconds ---Triggers---> Star's brightness returns to normal
+[x] press T --- after 1 second ---Triggers---> Star's brightness increases gradually
+           ---> after 1 seconds ---Triggers---> Star's brightness decreases gradually
 
 ### Group A:
 

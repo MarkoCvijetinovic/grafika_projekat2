@@ -395,20 +395,21 @@ void MainController::poll_events() {
         m_spotLightColor[2] = std::max(m_spotLightColor[2] - 0.02f, 0.0f);
     }
 
-    if (platform->key(engine::platform::KeyId::KEY_T).is_down() && !m_starKeyPressed) {
+    if (platform->key(engine::platform::KeyId::KEY_T).is_down() && !m_starEnabled) {
         std::thread(&MainController::alter_star, this).detach();
-        m_starKeyPressed = true;
-    }
-    if (platform->key(engine::platform::KeyId::KEY_T).is_up()) {
-        m_starKeyPressed = false;
+        m_starEnabled = true;
     }
 }
 void MainController::alter_star() {
-    std::this_thread::sleep_for(std::chrono::seconds(3));
-    m_starLuminocity *= 1.5f;
-    std::this_thread::sleep_for(std::chrono::seconds(3));
-    m_starLuminocity /= 1.5f;
-    //m_terranScale *= 1.5f;
-    //std::this_thread::sleep_for(std::chrono::seconds(3));
-    //m_terranScale /= 1.5f;
+    std::this_thread::sleep_for(std::chrono::seconds(1));
+    for(int i = 0; i < 20; i++) {
+        std::this_thread::sleep_for(std::chrono::milliseconds(100));
+        m_starLuminocity *= 1.02f;
+    }
+    std::this_thread::sleep_for(std::chrono::seconds(1));
+    for(int i = 0; i < 20; i++) {
+        std::this_thread::sleep_for(std::chrono::milliseconds(100));
+        m_starLuminocity /= 1.02f;
+    }
+    m_starEnabled = false;
 }

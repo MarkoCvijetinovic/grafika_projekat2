@@ -6,6 +6,7 @@
 #define MAINCONTROLLER_HPP
 
 #include <engine/core/Engine.hpp>
+#include <atomic>
 
 class MainController : public engine::core::Controller {
 public:
@@ -69,8 +70,8 @@ private:
     int m_csillaSpeed = 10000;
 
     float m_terranScale = 0.1f;
-    float m_starLuminocity = 1.8f;
-    bool m_starKeyPressed = false;
+    float m_starLuminocity = 1.6f;
+    std::atomic<bool> m_starEnabled{false};
 
     bool m_bloom = true;
     bool m_bloomKeyPressed = false;
