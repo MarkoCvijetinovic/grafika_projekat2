@@ -44,6 +44,18 @@ public:
     */
     void destroy();
 
+    [[nodiscard]] uint32_t VAO() const {
+        return m_vao;
+    }
+
+    [[nodiscard]] uint32_t num_of_indices() const {
+        return m_num_indices;
+    }
+
+    [[nodiscard]] const std::vector<Texture *>& textures() const {
+        return m_textures;
+    };
+
 private:
     /**
     * @brief Constructs a Mesh object.
