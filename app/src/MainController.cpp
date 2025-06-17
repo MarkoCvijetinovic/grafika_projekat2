@@ -395,21 +395,20 @@ void MainController::poll_events() {
         m_spotLightColor[2] = std::max(m_spotLightColor[2] - 0.02f, 0.0f);
     }
 
-    if (platform->key(engine::platform::KeyId::KEY_T).is_down() && !m_starEnabled) {
+    if (platform->key(engine::platform::KeyId::KEY_T).is_down() && !m_starEnabled.exchange(true)) {
         std::thread(&MainController::alter_star, this).detach();
-        m_starEnabled = true;
     }
 }
 void MainController::alter_star() {
     std::this_thread::sleep_for(std::chrono::seconds(1));
-    for(int i = 0; i < 20; i++) {
-        std::this_thread::sleep_for(std::chrono::milliseconds(100));
-        m_starLuminocity *= 1.02f;
+    for(int i = 0; i < 40; i++) {
+        std::this_thread::sleep_for(std::chrono::milliseconds(50));
+        m_starLuminocity *= 1.01f;
     }
     std::this_thread::sleep_for(std::chrono::seconds(1));
-    for(int i = 0; i < 20; i++) {
-        std::this_thread::sleep_for(std::chrono::milliseconds(100));
-        m_starLuminocity /= 1.02f;
+    for(int i = 0; i < 40; i++) {
+        std::this_thread::sleep_for(std::chrono::milliseconds(50));
+        m_starLuminocity /= 1.01f;
     }
     m_starEnabled = false;
 }
