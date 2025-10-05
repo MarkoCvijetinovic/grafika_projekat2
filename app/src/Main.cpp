@@ -5,7 +5,7 @@
 /**
  * Start here...
  */
-int main(int argc, char **argv) {
+auto main(int argc, char **argv) -> int {
     auto app = std::make_unique<MyApp>();
     return app->run(argc, argv);
 }

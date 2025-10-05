@@ -23,7 +23,7 @@ void MainController::initialize() {
             std::move(observer));
 }
 
-bool MainController::loop() {
+auto MainController::loop() -> bool {
     const auto platform = engine::core::Controller::get<engine::platform::PlatformController>();
     if (platform->key(engine::platform::KeyId::KEY_ESCAPE)
                 .state() == engine::platform::Key::State::JustPressed) {

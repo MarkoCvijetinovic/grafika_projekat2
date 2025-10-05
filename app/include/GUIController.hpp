@@ -9,7 +9,7 @@
 
 class GUIController : public engine::core::Controller {
 public:
-    [[nodiscard]] std::string_view name() const override {
+    [[nodiscard]] auto name() const -> std::string_view override {
         return "GUIController";
     }
 

@@ -12,14 +12,14 @@ public:
 
 class MainController final : public engine::core::Controller {
 public:
-    std::string_view name() const override {
+    [[nodiscard]] auto name() const -> std::string_view override {
         return "test::app::MainController";
     }
 
 private:
     void initialize() override;
 
-    bool loop() override;
+    auto loop() -> bool override;
 
     void poll_events() override;
 
