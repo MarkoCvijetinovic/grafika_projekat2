@@ -1,5 +1,8 @@
 matf_rg_engine
+<<<<<<< Updated upstream
 branches.txt
+=======
+>>>>>>> Stashed changes
 CMakeLists.txt.user
 CMakeCache.txt
 CMakeFiles
