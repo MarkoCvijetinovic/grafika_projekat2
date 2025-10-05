@@ -10,12 +10,12 @@
 
 class MainController : public engine::core::Controller {
 public:
-    [[nodiscard]] std::string_view name() const override { return "MainController"; }
+    [[nodiscard]] auto name() const -> std::string_view override { return "MainController"; }
 
 private:
     void initialize() override;
 
-    bool loop() override;
+    auto loop() -> bool override;
 
     void begin_draw() override;
 

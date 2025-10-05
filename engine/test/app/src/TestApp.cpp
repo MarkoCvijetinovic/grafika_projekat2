@@ -11,6 +11,6 @@ void TestApp::app_setup() {
 }
 }
 
-int main(int argc, char **argv) {
+auto main(int argc, char **argv) -> int {
     return std::make_unique<engine::test::app::TestApp>()->run(argc, argv);
 }

@@ -7,7 +7,7 @@
 namespace engine::test::app {
 class GUIController final : public engine::core::Controller {
 public:
-    std::string_view name() const override {
+    [[nodiscard]] auto name() const -> std::string_view override {
         return "test::app::GUIController";
     }
 

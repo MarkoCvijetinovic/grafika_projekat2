@@ -27,7 +27,7 @@ void MainPlatformEventObserver::on_mouse_move(engine::platform::MousePosition po
     //camera->process_mouse_movement(position.x, position.y, false);
 }
 
-bool MainController::loop() {
+auto MainController::loop() -> bool {
     auto platform = get<engine::platform::PlatformController>();
     if (platform->key(engine::platform::KeyId::KEY_ESCAPE).is_down())
         return false;
@@ -130,7 +130,7 @@ void MainController::draw_spaceship() {
     auto shader    = resources->shader("planet");
     shader->use();
 
-    glm::mat4 model = glm::mat4(1.0f);
+    auto model = glm::mat4(1.0f);
     model           = translate(model, m_csillaPos + glm::vec3(0.1f, 0.2f, 1.4f));
     model           = scale(model, glm::vec3(0.001f));
     model           = rotate(model, glm::radians(20.0f), glm::vec3(1.0f, 0.0f, 0.0f));
@@ -163,7 +163,7 @@ void MainController::draw_phoenix() {
     auto shader    = resources->shader("planet");
     shader->use();
 
-    glm::mat4 model = glm::mat4(1.0f);
+    auto model = glm::mat4(1.0f);
     model           = translate(model, glm::vec3(-2.0f, 0.0f, -3.0f));
     model           = scale(model, glm::vec3(0.8f));
     model           = rotate(model, glm::radians(-20.0f), glm::vec3(1.0f, 0.0f, 0.0f));
@@ -180,7 +180,7 @@ void MainController::draw_csilla() {
     auto shader    = resources->shader("planet");
     shader->use();
 
-    glm::mat4 model = glm::mat4(1.0f);
+    auto model = glm::mat4(1.0f);
     model           = translate(model, m_csillaPos);
     model           = scale(model, glm::vec3(0.1f));
     shader->set_mat4("model", model);
@@ -210,7 +210,7 @@ void MainController::draw_terran() {
     auto shader    = resources->shader("planet");
     shader->use();
 
-    glm::mat4 model = glm::mat4(1.0f);
+    auto model = glm::mat4(1.0f);
     model           = translate(model, glm::vec3(4.0f, 0.0f, -2.0f));
     model           = scale(model, glm::vec3(m_terranScale));
     shader->set_mat4("model", model);
@@ -258,7 +258,7 @@ void MainController::draw_star() {
     auto graphics = get<engine::graphics::GraphicsController>();
     shader->set_mat4("projection", graphics->projection_matrix());
     shader->set_mat4("view", graphics->camera()->view_matrix());
-    glm::mat4 model = glm::mat4(1.0f);
+    auto model = glm::mat4(1.0f);
     model           = translate(model, m_starPos);
     model           = scale(model, glm::vec3(0.6f));
     shader->set_mat4("model", model);
