@@ -2,6 +2,7 @@ matf_rg_engine
 <<<<<<< Updated upstream
 branches.txt
 =======
+*.gcov
 >>>>>>> Stashed changes
 CMakeLists.txt.user
 CMakeCache.txt
