@@ -14,4 +14,3 @@ void MyApp::app_setup() {
     auto gui_controller = register_controller<GUIController>();
     main_controller->before(gui_controller);
 }
-
