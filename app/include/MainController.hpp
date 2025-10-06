@@ -5,8 +5,8 @@
 #ifndef MAINCONTROLLER_HPP
 #define MAINCONTROLLER_HPP
 
-#include <engine/core/Engine.hpp>
 #include <atomic>
+#include <engine/core/Engine.hpp>
 
 class MainController : public engine::core::Controller {
 public:
@@ -78,4 +78,4 @@ private:
     float m_exposure = 1.5f;
 };
 
-#endif //MAINCONTROLLER_HPP
+#endif//MAINCONTROLLER_HPP

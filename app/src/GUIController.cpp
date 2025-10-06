@@ -13,7 +13,7 @@ void GUIController::initialize() {
 
 void GUIController::draw() {
     auto graphics = get<engine::graphics::GraphicsController>();
-    auto camera   = graphics->camera();
+    auto camera = graphics->camera();
 
     graphics->begin_gui();
     ImGui::Begin("Camera info");
