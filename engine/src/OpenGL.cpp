@@ -314,7 +314,7 @@ void OpenGL::end_bloom(const resources::Shader *shaderBlur, const resources::Sha
         // bind texture of other framebuffer (or scene if first iteration)
         render_quad();
         horizontal = !horizontal;
-        if (first_iteration) first_iteration = false;
+        first_iteration = false;
     }
     CHECKED_GL_CALL(glBindFramebuffer, GL_FRAMEBUFFER, 0);
 
@@ -360,13 +360,13 @@ void OpenGL::initialize_instancing(const resources::Model *model, const std::vec
         CHECKED_GL_CALL(glBindVertexArray, VAO);
         // set attribute pointers for matrix (4 times vec4)
         CHECKED_GL_CALL(glEnableVertexAttribArray, 3);
-        CHECKED_GL_CALL(glVertexAttribPointer, 3, 4, GL_FLOAT, GL_FALSE, sizeof(glm::mat4), (void *) 0);
+        CHECKED_GL_CALL(glVertexAttribPointer, 3, 4, GL_FLOAT, GL_FALSE, sizeof(glm::mat4), reinterpret_cast<void*>(0));
         CHECKED_GL_CALL(glEnableVertexAttribArray, 4);
-        CHECKED_GL_CALL(glVertexAttribPointer, 4, 4, GL_FLOAT, GL_FALSE, sizeof(glm::mat4), (void *) (sizeof(glm::vec4)));
+        CHECKED_GL_CALL(glVertexAttribPointer, 4, 4, GL_FLOAT, GL_FALSE, sizeof(glm::mat4), reinterpret_cast<void*> (sizeof(glm::vec4)));
         CHECKED_GL_CALL(glEnableVertexAttribArray, 5);
-        CHECKED_GL_CALL(glVertexAttribPointer, 5, 4, GL_FLOAT, GL_FALSE, sizeof(glm::mat4), (void *) (2 * sizeof(glm::vec4)));
+        CHECKED_GL_CALL(glVertexAttribPointer, 5, 4, GL_FLOAT, GL_FALSE, sizeof(glm::mat4), reinterpret_cast<void*> (2 * sizeof(glm::vec4)));
         CHECKED_GL_CALL(glEnableVertexAttribArray, 6);
-        CHECKED_GL_CALL(glVertexAttribPointer, 6, 4, GL_FLOAT, GL_FALSE, sizeof(glm::mat4), (void *) (3 * sizeof(glm::vec4)));
+        CHECKED_GL_CALL(glVertexAttribPointer, 6, 4, GL_FLOAT, GL_FALSE, sizeof(glm::mat4), reinterpret_cast<void*> (3 * sizeof(glm::vec4)));
 
         CHECKED_GL_CALL(glVertexAttribDivisor,3, 1);
         CHECKED_GL_CALL(glVertexAttribDivisor, 4, 1);
