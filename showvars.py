@@ -1,8 +1,6 @@
 import gdb
 
 class ShowVars(gdb.Command):
-    """showvars — print args, locals, statics, and globals for the current frame."""
-
     def __init__(self):
         super().__init__("showvars", gdb.COMMAND_DATA)
 
@@ -26,7 +24,6 @@ class ShowVars(gdb.Command):
                 print(f"{where:8} {name}: <unavailable>")
             seen.add(name)
 
-        # Walk lexical blocks up to the function scope
         b = frame.block()
         while b is not None:
             for sym in b:
@@ -38,7 +35,6 @@ class ShowVars(gdb.Command):
                 break
             b = b.superblock
 
-        # Include file-scope statics and globals from the current symtab
         try:
             sal = frame.find_sal()
             st = getattr(sal, "symtab", None)
@@ -52,7 +48,6 @@ class ShowVars(gdb.Command):
                             if sym.is_variable:
                                 print_sym(sym, where)
         except Exception:
-            # Missing/partial symtab info; ignore quietly
             pass
 
 ShowVars()
